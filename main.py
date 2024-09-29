@@ -3,6 +3,7 @@ import pandas as pd
 A_L = []
 A_S = []
 A_T = []
+d_theta = []
 
 long_shear = []
 short_shear = []
@@ -15,9 +16,9 @@ max_shear = 38000 #psi
 G = 11.6*(10**6) #psi
 fos = 2.5 #factor of safety
 D_dx = 0.0625 # delta inches
-D_L=0 #inches
-D_S_O = 0 #inches
-D_S_I = 0 #inches
+D_L=  0.0625 #inches
+D_S_O =  0.0625 #inches
+D_S_I =  0 #inches
 D_theta = 1.5*(3.14159265359/180) #degreea
 T = 14180.70543 #lbf-in
 L_S = 26 #in
@@ -27,12 +28,7 @@ L_L = 38 #in
 #long shaft
 
 while(D_L<7):
-    
-    D_L=0 #inches
-    D_S_O = 0 #inches
-    D_S_I = 0 #inches
-    
-    
+    D_S_O =  0.0625 #inches 
     D_L_shear_pass = False
     D_L=D_L+D_dx
     c =(D_L/2)
@@ -41,37 +37,35 @@ while(D_L<7):
     
     if(tau_l<max_shear):
         D_L_shear_pass = True
-    else:
-        break
-    
+
     while(D_S_O<7):
+        D_S_I =  0 #inches
+        D_S_O = D_S_O + D_dx
         D_S_shear_pass = False
         D_S_angle_pass = False
-        D_S_O=D_S_O+D_dx
         c_o =(D_S_O/2)
-        while(D_S_I<7):
-            D_S_I=D_S_I+D_dx
+        while(D_S_I<D_S_O-D_dx):
+            
             c_i =(D_S_I/2)
             j_s = (Pi/2)*((c_o**4)-(c_i**4))
             tau= fos*((T*c_o)/j_s)
             if(tau<max_shear):
                 D_S_shear_pass = True
-            else:
-                break
+
             theta = ((T*L_S)/(j_s*G))-((T*L_L)/(j*G))
             
             if((theta**2)<(D_theta**2)):
                 D_S_angle_pass = True
-            else:
-                break
             
+            D_S_I = D_S_I + D_dx
+
             if D_S_shear_pass == True and D_S_angle_pass == True and D_L_shear_pass == True:
                 D_long_list.append(D_L)
                 D_short_o_list.append(D_S_O)
                 D_short_i_list.append(D_S_I)
-                
-                
-                
+                d_theta.append(theta)       
+                        
+                        
                 Area_long = (Pi/2)*((D_L/2)**2)
                 Area_short = (Pi/2)*(((D_S_O/2)**2)-(D_S_I/2)**2)
                 Area_total = Area_short+Area_long
@@ -82,6 +76,8 @@ while(D_L<7):
                 
                 long_shear.append(tau_l)
                 short_shear.append(tau)
+                    
+       
                     
                     
 
@@ -94,27 +90,10 @@ df = pd.DataFrame({
     "Short Shaft Cross Sectional Area": A_S,
     "Both Shafts total area": A_T,
     "Long Shaft Shear Stress": long_shear,
-    "Short Shaft Shear Stress": short_shear
+    "Short Shaft Shear Stress": short_shear,
+    "Theta": d_theta
 })
 
 
 df_sorted = df.sort_values(by="Both Shafts total area")
-df_sorted.to_csv('shaft_properties.csv', index=False)              
-                    
-            
-                
-                
-                
-       
-        
-
-        
-        
-    
-    
-    
-    
- 
-
-
-
+df_sorted.to_csv('shaft_properties.csv', index=False)

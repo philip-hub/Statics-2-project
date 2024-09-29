@@ -41,23 +41,24 @@ while(D_L<7):
     while(D_S_O<7):
         D_S_I =  0 #inches
         D_S_O = D_S_O + D_dx
-        D_S_shear_pass = False
         D_S_angle_pass = False
+        D_S_shear_pass = False
         c_o =(D_S_O/2)
         while(D_S_I<D_S_O-D_dx):
-            
+            D_S_shear_pass = False
             c_i =(D_S_I/2)
             j_s = (Pi/2)*((c_o**4)-(c_i**4))
-            tau= fos*((T*c_o)/j_s)
-            if(tau<max_shear):
+            tau_2= fos*((T*c_o)/(j_s))
+            
+            if(tau_2<max_shear):
                 D_S_shear_pass = True
 
-            theta = ((T*L_S)/(j_s*G))-((T*L_L)/(j*G))
+            theta = ((T*L_S)/(j_s*G))-((T*L_L)/(j*G)) #short - long
             
             if((theta**2)<(D_theta**2)):
                 D_S_angle_pass = True
             
-            D_S_I = D_S_I + D_dx
+            
 
             if D_S_shear_pass == True and D_S_angle_pass == True and D_L_shear_pass == True:
                 D_long_list.append(D_L)
@@ -75,8 +76,9 @@ while(D_L<7):
                 A_T.append(Area_total)
                 
                 long_shear.append(tau_l)
-                short_shear.append(tau)
-                    
+                short_shear.append(tau_2)
+            
+            D_S_I = D_S_I + D_dx
        
                     
                     
